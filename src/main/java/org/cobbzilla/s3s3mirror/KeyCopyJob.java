@@ -11,53 +11,16 @@ import java.util.Date;
  * Handles a single key. Determines if it should be copied, and if so, performs the copy operation.
  */
 @Slf4j
-public class KeyCopyJob extends KeyJob {
-
-    protected String keydest;
+public class KeyCopyJob extends BaseKeyJob {
 
     public KeyCopyJob(AmazonS3Client client, MirrorContext context, S3ObjectSummary summary, Object notifyLock) {
         super(client, context, summary, notifyLock);
-
-        keydest = summary.getKey();
-        final MirrorOptions options = context.getOptions();
-        if (options.hasDestPrefix()) {
-            keydest = keydest.substring(options.getPrefixLength());
-            keydest = options.getDestPrefix() + keydest;
-        }
-    }
+   }
 
     @Override public Logger getLog() { return log; }
 
     @Override
-    public void run() {
-        final MirrorOptions options = context.getOptions();
-        final String key = summary.getKey();
-        try {
-            if (!shouldTransfer()) return;
-            final ObjectMetadata sourceMetadata = getObjectMetadata(options.getSourceBucket(), key, options);
-            final AccessControlList objectAcl = getAccessControlList(options, key);
-
-            if (options.isDryRun()) {
-                log.info("Would have copied " + key + " to destination: " + keydest);
-            } else {
-                if (keyCopied(sourceMetadata, objectAcl)) {
-                    context.getStats().objectsCopied.incrementAndGet();
-                } else {
-                    context.getStats().copyErrors.incrementAndGet();
-                }
-            }
-        } catch (Exception e) {
-            log.error("error copying key: " + key + ": " + e);
-
-        } finally {
-            synchronized (notifyLock) {
-                notifyLock.notifyAll();
-            }
-            if (options.isVerbose()) log.info("done with " + key);
-        }
-    }
-
-    boolean keyCopied(ObjectMetadata sourceMetadata, AccessControlList objectAcl) {
+    boolean execute(ObjectMetadata sourceMetadata, AccessControlList objectAcl) {
         String key = summary.getKey();
         MirrorOptions options = context.getOptions();
         boolean verbose = options.isVerbose();
@@ -66,7 +29,7 @@ public class KeyCopyJob extends KeyJob {
         for (int tries = 0; tries < maxRetries; tries++) {
             if (verbose) log.info("copying (try #" + tries + "): " + key + " to: " + keydest);
             final CopyObjectRequest request = new CopyObjectRequest(options.getSourceBucket(), key, options.getDestinationBucket(), keydest);
-            
+
             request.setStorageClass(StorageClass.valueOf(options.getStorageClass()));
             
             if (options.isEncrypt()) {

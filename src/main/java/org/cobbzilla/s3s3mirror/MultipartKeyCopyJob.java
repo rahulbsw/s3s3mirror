@@ -15,7 +15,7 @@ public class MultipartKeyCopyJob extends KeyCopyJob {
     }
 
     @Override
-    boolean keyCopied(ObjectMetadata sourceMetadata, AccessControlList objectAcl) {
+    boolean execute(ObjectMetadata sourceMetadata, AccessControlList objectAcl) {
         long objectSize = summary.getSize();
         MirrorOptions options = context.getOptions();
         String sourceBucketName = options.getSourceBucket();

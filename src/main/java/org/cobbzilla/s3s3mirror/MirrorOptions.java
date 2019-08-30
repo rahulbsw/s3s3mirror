@@ -219,6 +219,13 @@ public class MirrorOptions implements AWSCredentials {
     @Option(name=OPT_CROSS_ACCOUNT_COPY, aliases=LONGOPT_CROSS_ACCOUNT_COPY, usage=CROSS_ACCOUNT_USAGE)
     @Getter @Setter private boolean crossAccountCopy = false;
 
+    private static final String MOVE_USAGE="Copy objects to the destination bucket and then delete objects from the source bucket";
+    private static final String OPT_MOVE="-M";
+    private static final String LONGOPT_MOVE="--move";
+    @Option(name=OPT_MOVE, aliases=LONGOPT_MOVE, usage=MOVE_USAGE)
+    @Getter @Setter private boolean move = false;
+
+
     public void initDerivedFields() {
 
         if (hasCtime()) {

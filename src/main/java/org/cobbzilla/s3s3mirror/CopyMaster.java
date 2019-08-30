@@ -15,10 +15,10 @@ public class CopyMaster extends KeyMaster {
     protected String getPrefix(MirrorOptions options) { return options.getPrefix(); }
     protected String getBucket(MirrorOptions options) { return options.getSourceBucket(); }
 
-    protected KeyCopyJob getTask(S3ObjectSummary summary) {
+    protected BaseKeyJob getTask(S3ObjectSummary summary) {
         if (summary.getSize() > MirrorOptions.MAX_SINGLE_REQUEST_UPLOAD_FILE_SIZE) {
-            return new MultipartKeyCopyJob(client, context, summary, notifyLock);
-        }
-        return new KeyCopyJob(client, context, summary, notifyLock);
+            return ((context.getOptions().isMove()))? new MultipartKeyMoveJob(client, context, summary, notifyLock):new MultipartKeyCopyJob(client, context, summary, notifyLock);
+         }
+        return ((context.getOptions().isMove()))? new KeyMoveJob(client, context, summary, notifyLock):new KeyCopyJob(client, context, summary, notifyLock);
     }
 }
