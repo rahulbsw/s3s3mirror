@@ -5,6 +5,7 @@ jdk:
 
 branches:
   only:
+  - master
   - release-*
 
 before_install:
