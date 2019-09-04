@@ -1,7 +1,7 @@
 sudo: false
 language: java
 jdk:
-  - oraclejdk8
+  - oraclejdk9
   - openjdk8
 
 branches:
@@ -13,5 +13,6 @@ branches:
 before_install:
  - mvn clean
 
-after_success:
-  - mvn clean install -dskipTests
+script:
+  - mvn install -dskipTests
+  
