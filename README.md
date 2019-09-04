@@ -1,7 +1,7 @@
-s3s3mirror
-==========
+S3 To S3 Util
+==============
 
-A utility for mirroring content from one S3 bucket to another.
+A utility for mirroring/archiving content from one S3 bucket to another.
 
 Designed to be lightning-fast and highly concurrent, with modest CPU and memory requirements.
 
@@ -34,9 +34,6 @@ Which makes me wonder if there is any way to do this faster. I'm sure there must
 
 * Java 8 and above
 
-*Note*: currently there are problems compiling under Java 8. If you're including s3s3mirror in a larger project that uses Java8, compile
-it with Java 7 first, and compile your other code with Java 8. It should be fine to run with Java 8, just some issues with the compiler.
-
 ### Building
 
     mvn package
@@ -64,56 +61,56 @@ I encourage you to port them to the 2.x branch, if you have the ability.
 
 ### Options
 
-     -C (--cross-account-copy)     : Copy across AWS accounts. Only Resource-based
-                                     policies are supported (as specified by AWS
-                                     documentation) for cross account copying.
-                                     Default is false (copying within same account,
-                                     preserving ACLs across copies). If this option
-                                     is active, we give full access to owner of the
-                                     destination bucket.
-     -E (--server-side-encryption) : Enable AWS managed server-side encryption
-     -M (--move)                   : Copy objects to the destination bucket and
-                                     then delete objects from the source bucket
-     -P (--profile) VAL            : Use a specific profile from your credential
-                                     file (~/.aws/config)
-     -S (--size-only)              : Only use object size when checking for
-                                     equality and ignore etags
-     -X (--delete-removed)         : Delete objects from the destination bucket if
-                                     they do not exist in the source bucket
-     -c (--ctime) VAL              : Only copy objects whose Last-Modified date is
-                                     younger than this many days. For other time
-                                     units, use these suffixes: y (years), M
-                                     (months), d (days), w (weeks), h (hours), m
-                                     (minutes), s (seconds)
-     -d (--dest-prefix) VAL        : Destination prefix (replacing the one
-                                     specified in --prefix, if any)
-     -e (--endpoint) VAL           : AWS endpoint to use (or set AWS_ENDPOINT in
-                                     your environment)
-     -i (--iam)                    : Use IAM role from EC2 instance, can only be
-                                     used in AWS
-     -l (--storage-class) VAL      : Specify the S3 StorageClass (Standard |
-                                     ReducedRedundancy)
-     -m (--max-connections) N      : Maximum number of connections to S3 (default
-                                     100)
-     -n (--dry-run)                : Do not actually do anything, but show what
-                                     would be done
-     -p (--prefix) VAL             : Only copy objects whose keys start with this
-                                     prefix
-     -r (--max-retries) N          : Maximum number of retries for S3 requests
-                                     (default 5)
-     -s (--ssl)                    : Use SSL for all S3 api operations
-     -t (--max-threads) N          : Maximum number of threads (default 100)
-     -u (--upload-part-size) N     : The upload size (in bytes) of each part
-                                     uploaded as part of a multipart request for
-                                     files that are greater than the max allowed
-                                     file size of 5368709120 bytes (5GB). Defaults
-                                     to 4294967296 bytes (4GB).
-     -v (--verbose)                : Verbose output
-     -z (--proxy) VAL              : host:port of proxy server to use. Defaults to
-                                     proxy_host and proxy_port defined in ~/.s3cfg,
-                                     or no proxy if these values are not found in
-                                     ~/.s3cfg
-
+ -C (--cross-account-copy)     : Copy across AWS accounts. Only Resource-based
+                                 policies are supported (as specified by AWS
+                                 documentation) for cross account copying.
+                                 Default is false (copying within same account,
+                                 preserving ACLs across copies). If this option
+                                 is active, we give full access to owner of the
+                                 destination bucket.
+ -E (--server-side-encryption) : Enable AWS managed server-side encryption
+ -M (--move)                   : Copy objects to the destination bucket and
+                                 then delete objects from the source bucket
+ -P (--profile) VAL            : Use a specific profile from your credential
+                                 file (~/.aws/config)
+ -S (--size-only)              : Only use object size when checking for
+                                 equality and ignore etags
+ -X (--delete-removed)         : Delete objects from the destination bucket if
+                                 they do not exist in the source bucket
+ -c (--ctime) VAL              : Only copy objects whose Last-Modified date is
+                                 younger/older than this many days. For other
+                                 time units, use these suffixes: y (years), M
+                                 (months), d (days), w (weeks), h (hours), m
+                                 (minutes), s (seconds). For use suffix -
+                                 (younger), + (older)
+ -d (--dest-prefix) VAL        : Destination prefix (replacing the one
+                                 specified in --prefix, if any)
+ -e (--endpoint) VAL           : AWS endpoint to use (or set AWS_ENDPOINT in
+                                 your environment)
+ -i (--iam)                    : Use IAM role from EC2 instance, can only be
+                                 used in AWS
+ -l (--storage-class) VAL      : Specify the S3 StorageClass (Standard |
+                                 ReducedRedundancy)
+ -m (--max-connections) N      : Maximum number of connections to S3 (default
+                                 100)
+ -n (--dry-run)                : Do not actually do anything, but show what
+                                 would be done
+ -p (--prefix) VAL             : Only copy objects whose keys start with this
+                                 prefix
+ -r (--max-retries) N          : Maximum number of retries for S3 requests
+                                 (default 5)
+ -s (--ssl)                    : Use SSL for all S3 api operations
+ -t (--max-threads) N          : Maximum number of threads (default 100)
+ -u (--upload-part-size) N     : The upload size (in bytes) of each part
+                                 uploaded as part of a multipart request for
+                                 files that are greater than the max allowed
+                                 file size of 5368709120 bytes (5GB). Defaults
+                                 to 4294967296 bytes (4GB).
+ -v (--verbose)                : Verbose output
+ -z (--proxy) VAL              : host:port of proxy server to use. Defaults to
+                                 proxy_host and proxy_port defined in ~/.s3cfg,
+                                 or no proxy if these values are not found in
+                                 ~/.s3cfg
 
 ### Examples
 
@@ -121,17 +118,45 @@ Copy everything from a bucket named "source" to another bucket named "dest"
 
     s3s3mirror.sh source dest
 
+Move everything from a bucket named "source" to another bucket named "dest"
+
+    s3s3archive.sh source dest
+
 Copy everything from "source" to "dest", but only copy objects created or modified within the past week
 
     s3s3mirror.sh -c 7 source dest
     s3s3mirror.sh -c 7d source dest
     s3s3mirror.sh -c 1w source dest
+    s3s3mirror.sh -c 1w- source dest
     s3s3mirror.sh --ctime 1w source dest
+
+Move everything from "source" to "dest", but only copy objects created or modified within the past week
+
+    s3s3archive.sh -c 7 source dest
+    s3s3archive.sh -c 7d source dest
+    s3s3archive.sh -c 1w source dest
+    s3s3archive.sh -c 1w- source dest
+    s3s3archive.sh --ctime 1w source dest
+
+
+Copy everything from "source" to "dest", but only copy objects created or modified before the past week
+    
+    s3s3mirror.sh -c 1w+ source dest
+
+Move everything from "source" to "dest", but only copy objects created or modified before the past week
+    
+    s3s3archive.sh -c 1w+ source dest
 
 Copy everything from "source/foo" to "dest/bar"
 
     s3s3mirror.sh source/foo dest/bar
     s3s3mirror.sh -p foo -d bar source dest
+
+Move everything from "source/foo" to "dest/bar"
+
+    s3s3archive.sh source/foo dest/bar
+    s3s3archive.sh -p foo -d bar source dest
+
 
 Copy everything from "source/foo" to "dest/bar" and delete anything in "dest/bar" that does not exist in "source/foo"
 
@@ -140,15 +165,32 @@ Copy everything from "source/foo" to "dest/bar" and delete anything in "dest/bar
     s3s3mirror.sh -p foo -d bar -X source dest
     s3s3mirror.sh -p foo -d bar --delete-removed source dest
 
+Move everything from "source/foo" to "dest/bar" and delete anything in "dest/bar" that does not exist in "source/foo"
+
+    s3s3archive.sh -X source/foo dest/bar
+    s3s3archive.sh --delete-removed source/foo dest/bar
+    s3s3archive.sh -p foo -d bar -X source dest
+    s3s3archive.sh -p foo -d bar --delete-removed source dest
+
+
 Copy within a single bucket -- copy everything from "source/foo" to "source/bar"
 
     s3s3mirror.sh source/foo source/bar
     s3s3mirror.sh -p foo -d bar source source
 
+Move within a single bucket -- copy everything from "source/foo" to "source/bar"
+
+    s3s3archive.sh source/foo source/bar
+    s3s3archive.sh -p foo -d bar source source
+
+
 BAD IDEA: If copying within a single bucket, do *not* put the destination below the source
 
-    s3s3mirror.sh source/foo source/foo/subfolder
+    s3s3mirror.sh/ source/foo source/foo/subfolder
     s3s3mirror.sh -p foo -d foo/subfolder source source
+    s3s3archive.sh/ source/foo source/foo/subfolder
+    s3s3archive.sh -p foo -d foo/subfolder source source
+    
 *This might cause recursion and raise your AWS bill unnecessarily*
 
 
