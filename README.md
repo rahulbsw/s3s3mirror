@@ -51,9 +51,9 @@ s3s3mirror is available under the [Apache 2.0 License](https://www.apache.org/li
 
 ### Versions
 
-The 1.x branch (currently master) has been in use by the most number of people and is the most battle tested.
-
-The 2.x branch supports copying between S3 and any local filesystem. It has seen heavy use and performs well, but is not as widely used as the 1.x branch.
+    The 1.x branch (currently master) has been in use by the most number of people and is the most battle tested.
+    
+    The 2.x branch supports copying between S3 and any local filesystem. It has seen heavy use and performs well, but is not as widely used as the 1.x branch.
 
 **In the near future, the 1.x branch will offshoot from master, and the 2.x branch will be merged into master.** There are a handful of features
 on the 1.x branch that have not yet been ported to 2.x. If you can live without them, I encourage you to use the 2.x branch. If you really need them,
@@ -61,56 +61,56 @@ I encourage you to port them to the 2.x branch, if you have the ability.
 
 ### Options
 
- -C (--cross-account-copy)     : Copy across AWS accounts. Only Resource-based
-                                 policies are supported (as specified by AWS
-                                 documentation) for cross account copying.
-                                 Default is false (copying within same account,
-                                 preserving ACLs across copies). If this option
-                                 is active, we give full access to owner of the
-                                 destination bucket.
- -E (--server-side-encryption) : Enable AWS managed server-side encryption
- -M (--move)                   : Copy objects to the destination bucket and
-                                 then delete objects from the source bucket
- -P (--profile) VAL            : Use a specific profile from your credential
-                                 file (~/.aws/config)
- -S (--size-only)              : Only use object size when checking for
-                                 equality and ignore etags
- -X (--delete-removed)         : Delete objects from the destination bucket if
-                                 they do not exist in the source bucket
- -c (--ctime) VAL              : Only copy objects whose Last-Modified date is
-                                 younger/older than this many days. For other
-                                 time units, use these suffixes: y (years), M
-                                 (months), d (days), w (weeks), h (hours), m
-                                 (minutes), s (seconds). For use suffix -
-                                 (younger), + (older)
- -d (--dest-prefix) VAL        : Destination prefix (replacing the one
-                                 specified in --prefix, if any)
- -e (--endpoint) VAL           : AWS endpoint to use (or set AWS_ENDPOINT in
-                                 your environment)
- -i (--iam)                    : Use IAM role from EC2 instance, can only be
-                                 used in AWS
- -l (--storage-class) VAL      : Specify the S3 StorageClass (Standard |
-                                 ReducedRedundancy)
- -m (--max-connections) N      : Maximum number of connections to S3 (default
-                                 100)
- -n (--dry-run)                : Do not actually do anything, but show what
-                                 would be done
- -p (--prefix) VAL             : Only copy objects whose keys start with this
-                                 prefix
- -r (--max-retries) N          : Maximum number of retries for S3 requests
-                                 (default 5)
- -s (--ssl)                    : Use SSL for all S3 api operations
- -t (--max-threads) N          : Maximum number of threads (default 100)
- -u (--upload-part-size) N     : The upload size (in bytes) of each part
-                                 uploaded as part of a multipart request for
-                                 files that are greater than the max allowed
-                                 file size of 5368709120 bytes (5GB). Defaults
-                                 to 4294967296 bytes (4GB).
- -v (--verbose)                : Verbose output
- -z (--proxy) VAL              : host:port of proxy server to use. Defaults to
-                                 proxy_host and proxy_port defined in ~/.s3cfg,
-                                 or no proxy if these values are not found in
-                                 ~/.s3cfg
+     -C (--cross-account-copy)     : Copy across AWS accounts. Only Resource-based
+                                     policies are supported (as specified by AWS
+                                     documentation) for cross account copying.
+                                     Default is false (copying within same account,
+                                     preserving ACLs across copies). If this option
+                                     is active, we give full access to owner of the
+                                     destination bucket.
+     -E (--server-side-encryption) : Enable AWS managed server-side encryption
+     -M (--move)                   : Copy objects to the destination bucket and
+                                     then delete objects from the source bucket
+     -P (--profile) VAL            : Use a specific profile from your credential
+                                     file (~/.aws/config)
+     -S (--size-only)              : Only use object size when checking for
+                                     equality and ignore etags
+     -X (--delete-removed)         : Delete objects from the destination bucket if
+                                     they do not exist in the source bucket
+     -c (--ctime) VAL              : Only copy objects whose Last-Modified date is
+                                     younger/older than this many days. For other
+                                     time units, use these suffixes: y (years), M
+                                     (months), d (days), w (weeks), h (hours), m
+                                     (minutes), s (seconds). For use suffix -
+                                     (younger), + (older)
+     -d (--dest-prefix) VAL        : Destination prefix (replacing the one
+                                     specified in --prefix, if any)
+     -e (--endpoint) VAL           : AWS endpoint to use (or set AWS_ENDPOINT in
+                                     your environment)
+     -i (--iam)                    : Use IAM role from EC2 instance, can only be
+                                     used in AWS
+     -l (--storage-class) VAL      : Specify the S3 StorageClass (Standard |
+                                     ReducedRedundancy)
+     -m (--max-connections) N      : Maximum number of connections to S3 (default
+                                     100)
+     -n (--dry-run)                : Do not actually do anything, but show what
+                                     would be done
+     -p (--prefix) VAL             : Only copy objects whose keys start with this
+                                     prefix
+     -r (--max-retries) N          : Maximum number of retries for S3 requests
+                                     (default 5)
+     -s (--ssl)                    : Use SSL for all S3 api operations
+     -t (--max-threads) N          : Maximum number of threads (default 100)
+     -u (--upload-part-size) N     : The upload size (in bytes) of each part
+                                     uploaded as part of a multipart request for
+                                     files that are greater than the max allowed
+                                     file size of 5368709120 bytes (5GB). Defaults
+                                     to 4294967296 bytes (4GB).
+     -v (--verbose)                : Verbose output
+     -z (--proxy) VAL              : host:port of proxy server to use. Defaults to
+                                     proxy_host and proxy_port defined in ~/.s3cfg,
+                                     or no proxy if these values are not found in
+                                     ~/.s3cfg
 
 ### Examples
 
