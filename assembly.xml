@@ -1,0 +1,57 @@
+<assembly>
+    <id>bin</id>
+    <!-- Specifies that our binary distribution is a zip package -->
+    <formats>
+        <format>zip</format>
+    </formats>
+
+    <!-- Adds the dependencies of our application to the lib directory -->
+<!--    <dependencySets>-->
+<!--        <dependencySet>-->
+<!--            &lt;!&ndash;-->
+<!--                Project artifact is not copied under library directory since-->
+<!--                it is added to the root directory of the zip package.-->
+<!--            &ndash;&gt;-->
+<!--            <useProjectArtifact>false</useProjectArtifact>-->
+<!--            <outputDirectory>lib</outputDirectory>-->
+<!--            <unpack>false</unpack>-->
+<!--        </dependencySet>-->
+<!--    </dependencySets>-->
+
+    <fileSets>
+        <!--
+            Adds startup scripts to the root directory of zip package. The startup
+            scripts are copied from the src/main/scripts directory.
+        -->
+        <fileSet>
+            <directory>.</directory>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>*.sh</include>
+                <include>*.bat</include>
+            </includes>
+            <fileMode>0755</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}/conf</directory>
+            <outputDirectory>conf</outputDirectory>
+            <includes>
+                <include>log4j.xml</include>
+            </includes>
+            <fileMode>0755</fileMode>
+        </fileSet>
+
+        <!--
+            Adds the jar file of our example application to the root directory
+            of the created zip package.
+        -->
+        <fileSet>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>s3s3mirror*.jar</include>
+            </includes>
+            <fileMode>0755</fileMode>
+        </fileSet>
+    </fileSets>
+</assembly>

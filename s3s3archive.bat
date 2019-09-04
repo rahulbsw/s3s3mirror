@@ -1,2 +1,2 @@
 @echo off
-java -Dlog4j.configuration=file:target/conf/log4j.xml -Ds3s3mirror.version=1.2.6 -jar target/s3s3mirror-1.2.6-SNAPSHOT.jar --move %*
+java -Dlog4j.configuration=file:conf/log4j.xml -Ds3tos3util.version=1.3.0 -jar ./s3tos3util*.jar --move %*
