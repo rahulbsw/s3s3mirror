@@ -1,7 +1,6 @@
 sudo: false
 language: java
 jdk:
-  - oraclejdk9
   - openjdk8
 
 branches:
@@ -13,6 +12,17 @@ branches:
 before_install:
  - mvn clean
 
-script:
-  - mvn install -dskipTests
-  
+install:
+  - mvn -DskipTests=true package
+
+before_deploy:
+  - mvn -DskipTests=true install
+  - export ZIP_FILE=$(ls target/s3tos3util-*.zip)
+
+deploy:
+  provider: releases
+  api_key: "${GITHUP_API_TOKEN}"
+  file: "${ZIP_FILE}"
+  skip_cleanup: true
+  on:
+    tags: true  
