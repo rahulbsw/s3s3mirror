@@ -27,4 +27,6 @@ deploy:
   file: "${ZIP_FILE}"
   skip_cleanup: true
   on:
+    repo: rahulbsw/s3s3mirror
     tags: true
+    all_branches: true
