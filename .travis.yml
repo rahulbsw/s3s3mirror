@@ -27,5 +27,4 @@ deploy:
   api_key: "${GITHUP_API_TOKEN}"
   file: "${ZIP_FILE}"
   skip_cleanup: true
-  on:
-    tags: true  
+
