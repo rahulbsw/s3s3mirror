@@ -1,3 +1,5 @@
+![Master Branch](https://travis-ci.org/rahulbsw/s3s3mirror.svg?branch=master)
+
 S3 To S3 Util
 ==============
 

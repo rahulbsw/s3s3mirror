@@ -10,7 +10,7 @@ DEBUG=$1
 if [ "${DEBUG}" = "--debug" ] ; then
   # Run in debug mode
   shift   # remove --debug from options
-  java -Dlog4j.configuration=file:conf/log4j.xml -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005 ${VERSION_ARG} -jar "${JARFILE}" --move "$@"
+  java -Dlog4j.configuration=file:log4j.xml -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005 ${VERSION_ARG} -jar "${JARFILE}" --move "$@"
 
 else
   # Run in regular mode

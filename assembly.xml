@@ -33,8 +33,8 @@
             <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
-            <directory>${project.build.directory}/conf</directory>
-            <outputDirectory>conf</outputDirectory>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory></outputDirectory>
             <includes>
                 <include>log4j.xml</include>
             </includes>
