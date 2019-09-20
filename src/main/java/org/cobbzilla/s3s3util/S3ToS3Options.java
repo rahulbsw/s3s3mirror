@@ -1,7 +1,6 @@
 package org.cobbzilla.s3s3util;
 
 import com.amazonaws.auth.AWSCredentials;
-
 import lombok.Getter;
 import lombok.Setter;
 import org.joda.time.DateTime;
@@ -10,7 +9,7 @@ import org.kohsuke.args4j.Option;
 
 import java.util.Date;
 
-import static org.cobbzilla.s3s3util.S3ToS3Constants.*;
+import static org.cobbzilla.s3s3util.S3ToS3Constants.GB;
 
 public class S3ToS3Options implements AWSCredentials {
 
@@ -225,11 +224,20 @@ public class S3ToS3Options implements AWSCredentials {
     @Option(name=OPT_CROSS_ACCOUNT_COPY, aliases=LONGOPT_CROSS_ACCOUNT_COPY, usage=CROSS_ACCOUNT_USAGE)
     @Getter @Setter private boolean crossAccountCopy = false;
 
-    private static final String MOVE_USAGE="Copy objects to the destination bucket and then delete objects from the source bucket";
-    private static final String OPT_MOVE="-M";
-    private static final String LONGOPT_MOVE="--move";
-    @Option(name=OPT_MOVE, aliases=LONGOPT_MOVE, usage=MOVE_USAGE)
-    @Getter @Setter private boolean move = false;
+    private static final String ACTION_USAGE = "Possible actions are copy ,move or delete.";
+    private static final String OPT_ACTION = "-A";
+    private static final String LONGOPT_ACTION = "--action";
+    @Option(name = OPT_ACTION, aliases = LONGOPT_ACTION, usage = ACTION_USAGE)
+    @Getter
+    @Setter
+    private String action = "copy";
+
+    @Getter
+    private boolean move = false;
+    @Getter
+    private boolean copy = false;
+    @Getter
+    private boolean delete = false;
 
 
     public void initDerivedFields() {
@@ -262,6 +270,13 @@ public class S3ToS3Options implements AWSCredentials {
             if (hasDestPrefix()) throw new IllegalArgumentException("Cannot use a "+OPT_DEST_PREFIX+"/"+LONGOPT_DEST_PREFIX+" argument and destination path that includes a dest-prefix at the same time");
             destPrefix = scrubbed.substring(slashPos+1);
         }
+
+        if ("move".equalsIgnoreCase(action.trim()))
+            move = true;
+        else if ("delete".equalsIgnoreCase(action.trim()))
+            delete = true;
+        else
+            copy = true;
     }
 
     protected String scrubS3ProtocolPrefix(String bucket) {

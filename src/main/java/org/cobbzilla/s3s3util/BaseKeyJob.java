@@ -33,7 +33,7 @@ abstract public class BaseKeyJob extends KeyJob {
         final S3ToS3Options options = context.getOptions();
         final String key = summary.getKey();
         try {
-            if (!shouldTransfer()) return;
+            if (!shouldAction()) return;
             final ObjectMetadata sourceMetadata = getObjectMetadata(options.getSourceBucket(), key, options);
             final AccessControlList objectAcl = getAccessControlList(options, key);
 
@@ -57,7 +57,7 @@ abstract public class BaseKeyJob extends KeyJob {
         }
     }
 
-    private boolean shouldTransfer() {
+    protected boolean shouldAction() {
         final S3ToS3Options options = context.getOptions();
         final String key = summary.getKey();
         final boolean verbose = options.isVerbose();

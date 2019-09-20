@@ -71,8 +71,7 @@ I encourage you to port them to the 2.x branch, if you have the ability.
                                      is active, we give full access to owner of the
                                      destination bucket.
      -E (--server-side-encryption) : Enable AWS managed server-side encryption
-     -M (--move)                   : Copy objects to the destination bucket and
-                                     then delete objects from the source bucket
+     -A (--action)                 : Possible actions are Copy, Move or Delete objects
      -P (--profile) VAL            : Use a specific profile from your credential
                                      file (~/.aws/config)
      -S (--size-only)              : Only use object size when checking for

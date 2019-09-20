@@ -5,8 +5,10 @@ import com.amazonaws.services.s3.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 
+import java.util.Date;
+
 @Slf4j
-public class KeyDeleteJob extends KeyJob {
+public class KeyDeleteJob extends BaseKeyJob {
 
     private String keysrc;
 
@@ -23,17 +25,18 @@ public class KeyDeleteJob extends KeyJob {
 
     @Override public Logger getLog() { return log; }
 
+
     @Override
-    public void run() {
+    public boolean execute(ObjectMetadata sourceMetadata, AccessControlList objectAcl) {
         final S3ToS3Options options = context.getOptions();
         final S3ToS3Stats stats = context.getStats();
         final boolean verbose = options.isVerbose();
         final int maxRetries = options.getMaxRetries();
         final String key = summary.getKey();
         try {
-            if (!shouldDelete()) return;
+            if (!shouldAction()) return false;
 
-            final DeleteObjectRequest request = new DeleteObjectRequest(options.getDestinationBucket(), key);
+            final DeleteObjectRequest request = new DeleteObjectRequest(((options.isDelete()) ? options.getSourceBucket() : options.getDestinationBucket()), key);
 
             if (options.isDryRun()) {
                 log.info("Would have deleted "+key+" from destination because "+keysrc+" does not exist in source");
@@ -77,17 +80,37 @@ public class KeyDeleteJob extends KeyJob {
             }
             if (verbose) log.info("done with "+key);
         }
+        return true;
     }
 
-    private boolean shouldDelete() {
+    @Override
+    protected boolean shouldAction() {
 
         final S3ToS3Options options = context.getOptions();
         final boolean verbose = options.isVerbose();
 
         // Does it exist in the source bucket
+        if (options.isDelete() && options.hasCtime()) {
+            final Date lastModified = summary.getLastModified();
+            if (lastModified == null) {
+                if (verbose) log.info("No Last-Modified header for key: " + keysrc);
+
+            } else {
+                if (options.isYounger() && lastModified.getTime() < options.getAge()) {
+                    if (verbose)
+                        log.info("key " + keysrc + " (lastmod=" + lastModified + ") is older than " + options.getCtime() + " (cutoff=" + options.getAgeDate() + "), not copying");
+                    return false;
+                } else if (!options.isYounger() && lastModified.getTime() > options.getAge()) {
+                    if (verbose)
+                        log.info("key " + keysrc + " (lastmod=" + lastModified + ") is younger than " + options.getCtime() + " (cutoff=" + options.getAgeDate() + "), not copying");
+                    return false;
+                }
+            }
+        }
+
         try {
             ObjectMetadata metadata = getObjectMetadata(options.getSourceBucket(), keysrc, options);
-            return false; // object exists in source bucket, don't delete it from destination bucket
+            return context.getOptions().isDelete(); // object exists in source bucket, don't delete it from destination bucket
 
         } catch (AmazonS3Exception e) {
             if (e.getStatusCode() == 404) {

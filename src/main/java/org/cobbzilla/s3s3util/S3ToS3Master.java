@@ -47,7 +47,7 @@ public class S3ToS3Master {
         try {
             copyMaster.start();
 
-            if (context.getOptions().isDeleteRemoved()) {
+            if (!context.getOptions().isDelete() && context.getOptions().isDeleteRemoved()) {
                 deleteMaster = new DeleteMaster(client, context, workQueue, executorService);
                 deleteMaster.start();
             }

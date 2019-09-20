@@ -16,6 +16,8 @@ public class CopyMaster extends KeyMaster {
     protected String getBucket(S3ToS3Options options) { return options.getSourceBucket(); }
 
     protected BaseKeyJob getTask(S3ObjectSummary summary) {
+        if (context.getOptions().isDelete())
+            return new KeyDeleteJob(client, context, summary, notifyLock);
         if (summary.getSize() > S3ToS3Options.MAX_SINGLE_REQUEST_UPLOAD_FILE_SIZE) {
             return ((context.getOptions().isMove()))? new MultipartKeyMoveJob(client, context, summary, notifyLock):new MultipartKeyCopyJob(client, context, summary, notifyLock);
          }
