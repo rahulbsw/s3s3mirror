@@ -14,7 +14,7 @@ if [ "${DEBUG}" = "--debug" ] ; then
 
 else
   # Run in regular mode
-  java ${VERSION_ARG} -Dlog4j.configuration=file:conf/log4j.xml -jar "${JARFILE}" --action move "$@"
+  java ${VERSION_ARG} -Dlog4j.configuration=file:log4j.xml -jar "${JARFILE}" --action move "$@"
 fi
 
 exit $?

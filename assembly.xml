@@ -33,10 +33,10 @@
             <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
-            <directory>${project.build.directory}</directory>
+            <directory>src/main/resources</directory>
             <outputDirectory></outputDirectory>
             <includes>
-                <include>log4j.xml</include>
+                <include>*.xml</include>
             </includes>
             <fileMode>0755</fileMode>
         </fileSet>

@@ -98,11 +98,13 @@ public class S3ToS3Options implements AWSCredentials {
     @Option(name=OPT_MAX_CONNECTIONS, aliases=LONGOPT_MAX_CONNECTIONS, usage=USAGE_MAX_CONNECTIONS)
     @Getter @Setter private int maxConnections = 100;
 
-    public static final String USAGE_MAX_THREADS = "Maximum number of threads (default 100)";
+    public static final String USAGE_MAX_THREADS = "Maximum number of threads (default #Cores*2)";
     public static final String OPT_MAX_THREADS = "-t";
     public static final String LONGOPT_MAX_THREADS = "--max-threads";
     @Option(name=OPT_MAX_THREADS, aliases=LONGOPT_MAX_THREADS, usage=USAGE_MAX_THREADS)
-    @Getter @Setter private int maxThreads = 100;
+    @Getter
+    @Setter
+    private int maxThreads = Runtime.getRuntime().availableProcessors() * 2;
 
     public static final String USAGE_MAX_RETRIES = "Maximum number of retries for S3 requests (default 5)";
     public static final String OPT_MAX_RETRIES = "-r";

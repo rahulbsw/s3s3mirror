@@ -72,7 +72,12 @@ public class S3ToS3Master {
     }
 
     public static int getMaxQueueCapacity(S3ToS3Options options) {
-        return 10 * options.getMaxThreads();
+        long freeMem = Runtime.getRuntime().freeMemory();
+        long maxMem = Runtime.getRuntime().maxMemory();
+        int maxCapacity = Math.max(10 * options.getMaxThreads(), (int) (freeMem * 0.40) / 20);
+        log.info("Total Free available memory {}", freeMem);
+        log.info("Max Queue Capacity {}", maxCapacity);
+        return maxCapacity;
     }
 
 }

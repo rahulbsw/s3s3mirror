@@ -101,7 +101,7 @@ I encourage you to port them to the 2.x branch, if you have the ability.
      -r (--max-retries) N          : Maximum number of retries for S3 requests
                                      (default 5)
      -s (--ssl)                    : Use SSL for all S3 api operations
-     -t (--max-threads) N          : Maximum number of threads (default 100)
+     -t (--max-threads) N          : Maximum number of threads ((default #Cores*2))
      -u (--upload-part-size) N     : The upload size (in bytes) of each part
                                      uploaded as part of a multipart request for
                                      files that are greater than the max allowed
