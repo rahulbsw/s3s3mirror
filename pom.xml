@@ -25,6 +25,7 @@
     <properties>
         <org.slf4j.version>1.6.4</org.slf4j.version>
         <junit.version>4.13.1</junit.version>
+        <aws-java-sdk.version>1.11.901</aws-java-sdk.version>
     </properties>
 
     <dependencies>
@@ -100,7 +101,7 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk</artifactId>
-            <version>1.11.48</version>
+            <version>${aws-java-sdk.version}</version>
         </dependency>
     </dependencies>
 
