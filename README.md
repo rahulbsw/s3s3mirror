@@ -139,6 +139,14 @@ Move everything from "source" to "dest", but only copy objects created or modifi
     s3s3archive.sh -c 1w- source dest
     s3s3archive.sh --ctime 1w source dest
 
+Delete everything from a "source" bucket -- but only delete objects created or modified within the past week
+
+    s3s3cleanup.sh -c 7 source
+    s3s3cleanup.sh -c 7d source
+    s3s3cleanup.sh -c 1w source
+    s3s3cleanup.sh -c 1w- source
+    s3s3cleanup.sh --ctime 1w source
+
 
 Copy everything from "source" to "dest", but only copy objects created or modified before the past week
     
@@ -148,6 +156,10 @@ Move everything from "source" to "dest", but only copy objects created or modifi
     
     s3s3archive.sh -c 1w+ source dest
 
+Delete everything from a "source" bucket, but only delete objects created or modified before the past week
+    
+    s3s3cleanup.sh -c 1w+ source dest
+    
 Copy everything from "source/foo" to "dest/bar"
 
     s3s3mirror.sh source/foo dest/bar
@@ -183,7 +195,7 @@ Move within a single bucket -- copy everything from "source/foo" to "source/bar"
 
     s3s3archive.sh source/foo source/bar
     s3s3archive.sh -p foo -d bar source source
-
+    
 
 BAD IDEA: If copying within a single bucket, do *not* put the destination below the source
 
@@ -191,6 +203,7 @@ BAD IDEA: If copying within a single bucket, do *not* put the destination below 
     s3s3mirror.sh -p foo -d foo/subfolder source source
     s3s3archive.sh/ source/foo source/foo/subfolder
     s3s3archive.sh -p foo -d foo/subfolder source source
+    s3s3cleanup.sh source #Use bucket detele instead of cleaning up all the object in bucket
     
 *This might cause recursion and raise your AWS bill unnecessarily*
 
