@@ -1,5 +1,6 @@
 package org.cobbzilla.s3s3util;
 
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +17,7 @@ public abstract class KeyMaster implements Runnable {
     public static final int STOP_TIMEOUT_SECONDS = 10;
     private static final long STOP_TIMEOUT = TimeUnit.SECONDS.toMillis(STOP_TIMEOUT_SECONDS);
 
-    protected AmazonS3Client client;
+    protected AmazonS3 client;
     protected S3ToS3Context context;
 
     private AtomicBoolean done = new AtomicBoolean(false);
@@ -28,7 +29,7 @@ public abstract class KeyMaster implements Runnable {
 
     private Thread thread;
 
-    public KeyMaster(AmazonS3Client client, S3ToS3Context context, BlockingQueue<Runnable> workQueue, ThreadPoolExecutor executorService) {
+    public KeyMaster(AmazonS3 client, S3ToS3Context context, BlockingQueue<Runnable> workQueue, ThreadPoolExecutor executorService) {
         this.client = client;
         this.context = context;
         this.workQueue = workQueue;

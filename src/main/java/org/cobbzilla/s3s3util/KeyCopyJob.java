@@ -1,5 +1,6 @@
 package org.cobbzilla.s3s3util;
 
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.*;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +12,7 @@ import org.slf4j.Logger;
 @Slf4j
 public class KeyCopyJob extends BaseKeyJob {
 
-    public KeyCopyJob(AmazonS3Client client, S3ToS3Context context, S3ObjectSummary summary, Object notifyLock) {
+    public KeyCopyJob(AmazonS3 client, S3ToS3Context context, S3ObjectSummary summary, Object notifyLock) {
         super(client, context, summary, notifyLock);
    }
 

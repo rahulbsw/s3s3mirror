@@ -1,5 +1,6 @@
 package org.cobbzilla.s3s3util;
 
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
@@ -14,9 +15,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 public class KeyLister implements Runnable {
 
-    private AmazonS3Client client;
-    private S3ToS3Context context;
-    private int maxQueueCapacity;
+    private final AmazonS3 client;
+    private final S3ToS3Context context;
+    private final int maxQueueCapacity;
 
     private final List<S3ObjectSummary> summaries;
     private final AtomicBoolean done = new AtomicBoolean(false);
@@ -24,14 +25,14 @@ public class KeyLister implements Runnable {
 
     public boolean isDone () { return done.get(); }
 
-    public KeyLister(AmazonS3Client client, S3ToS3Context context, int maxQueueCapacity, String bucket, String prefix) {
+    public KeyLister(AmazonS3 client, S3ToS3Context context, int maxQueueCapacity, String bucket, String prefix) {
         this.client = client;
         this.context = context;
         this.maxQueueCapacity = maxQueueCapacity;
 
         final S3ToS3Options options = context.getOptions();
         int fetchSize = options.getMaxThreads();
-        this.summaries = new ArrayList<S3ObjectSummary>(10*fetchSize);
+        this.summaries = new ArrayList<>(10 * fetchSize);
 
         final ListObjectsRequest request = new ListObjectsRequest(bucket, prefix, null, null, fetchSize);
         listing = s3getFirstBatch(client, request);
@@ -83,7 +84,7 @@ public class KeyLister implements Runnable {
         }
     }
 
-    private ObjectListing s3getFirstBatch(AmazonS3Client client, ListObjectsRequest request) {
+    private ObjectListing s3getFirstBatch(AmazonS3 client, ListObjectsRequest request) {
 
         final S3ToS3Options options = context.getOptions();
         final boolean verbose = options.isVerbose();
@@ -144,7 +145,7 @@ public class KeyLister implements Runnable {
     public List<S3ObjectSummary> getNextBatch() {
         List<S3ObjectSummary> copy;
         synchronized (summaries) {
-            copy = new ArrayList<S3ObjectSummary>(summaries);
+            copy = new ArrayList<>(summaries);
             summaries.clear();
         }
         return copy;

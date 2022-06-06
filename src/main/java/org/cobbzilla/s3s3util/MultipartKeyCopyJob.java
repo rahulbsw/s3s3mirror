@@ -1,5 +1,6 @@
 package org.cobbzilla.s3s3util;
 
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.*;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +11,7 @@ import java.util.List;
 @Slf4j
 public class MultipartKeyCopyJob extends KeyCopyJob {
 
-    public MultipartKeyCopyJob(AmazonS3Client client, S3ToS3Context context, S3ObjectSummary summary, Object notifyLock) {
+    public MultipartKeyCopyJob(AmazonS3 client, S3ToS3Context context, S3ObjectSummary summary, Object notifyLock) {
         super(client, context, summary, notifyLock);
     }
 
@@ -21,7 +22,7 @@ public class MultipartKeyCopyJob extends KeyCopyJob {
         String sourceBucketName = options.getSourceBucket();
         int maxPartRetries = options.getMaxRetries();
         String targetBucketName = options.getDestinationBucket();
-        List<CopyPartResult> copyResponses = new ArrayList<CopyPartResult>();
+        List<CopyPartResult> copyResponses = new ArrayList<>();
         if (options.isVerbose()) {
             log.info("Initiating multipart upload request for " + summary.getKey());
         }
@@ -85,7 +86,7 @@ public class MultipartKeyCopyJob extends KeyCopyJob {
     }
 
     private List<PartETag> getETags(List<CopyPartResult> copyResponses) {
-        List<PartETag> eTags = new ArrayList<PartETag>();
+        List<PartETag> eTags = new ArrayList<>();
         for (CopyPartResult response : copyResponses) {
             eTags.add(new PartETag(response.getPartNumber(), response.getETag()));
         }

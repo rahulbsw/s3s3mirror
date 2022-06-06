@@ -1,6 +1,6 @@
 package org.cobbzilla.s3s3util;
 
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -14,7 +14,7 @@ import java.util.Date;
 abstract public class BaseKeyJob extends KeyJob {
     protected String keydest;
 
-    public BaseKeyJob(AmazonS3Client client, S3ToS3Context context, S3ObjectSummary summary, Object notifyLock) {
+    public BaseKeyJob(AmazonS3 client, S3ToS3Context context, S3ObjectSummary summary, Object notifyLock) {
         super(client, context, summary, notifyLock);
         keydest = summary.getKey();
         final S3ToS3Options options = context.getOptions();
@@ -33,7 +33,7 @@ abstract public class BaseKeyJob extends KeyJob {
         final S3ToS3Options options = context.getOptions();
         final String key = summary.getKey();
         try {
-            if (!shouldAction()) return;
+            if (validate()) return;
             final ObjectMetadata sourceMetadata = getObjectMetadata(options.getSourceBucket(), key, options);
             final AccessControlList objectAcl = getAccessControlList(options, key);
 
@@ -57,7 +57,7 @@ abstract public class BaseKeyJob extends KeyJob {
         }
     }
 
-    protected boolean shouldAction() {
+    protected boolean validate() {
         final S3ToS3Options options = context.getOptions();
         final String key = summary.getKey();
         final boolean verbose = options.isVerbose();
@@ -70,11 +70,11 @@ abstract public class BaseKeyJob extends KeyJob {
             } else {
                 if (options.isYounger() && lastModified.getTime() < options.getAge()) {
                     if (verbose) log.info("key "+key+" (lastmod="+lastModified+") is older than "+options.getCtime()+" (cutoff="+options.getAgeDate()+"), not copying");
-                    return false;
+                    return true;
                 }
                 else if(!options.isYounger() && lastModified.getTime() > options.getAge()) {
                     if (verbose) log.info("key "+key+" (lastmod="+lastModified+") is younger than "+options.getCtime()+" (cutoff="+options.getAgeDate()+"), not copying");
-                    return false;
+                    return true;
                 }
             }
         }
@@ -84,23 +84,23 @@ abstract public class BaseKeyJob extends KeyJob {
         } catch (AmazonS3Exception e) {
             if (e.getStatusCode() == 404) {
                 if (verbose) log.info("Key not found in destination bucket (will copy): "+ keydest);
-                return true;
+                return false;
             } else {
                 log.warn("Error getting metadata for " + options.getDestinationBucket() + "/" + keydest + " (not copying): " + e);
-                return false;
+                return true;
             }
         } catch (Exception e) {
             log.warn("Error getting metadata for " + options.getDestinationBucket() + "/" + keydest + " (not copying): " + e);
-            return false;
+            return true;
         }
 
         if (summary.getSize() > S3ToS3Options.MAX_SINGLE_REQUEST_UPLOAD_FILE_SIZE) {
-            return metadata.getContentLength() != summary.getSize();
+            return metadata.getContentLength() == summary.getSize();
         }
         final boolean objectChanged = objectChanged(metadata);
         if (verbose && !objectChanged) log.info("Destination file is same as source, not copying: "+ key);
 
-        return objectChanged;
+        return !objectChanged;
     }
 
     boolean objectChanged(ObjectMetadata metadata) {

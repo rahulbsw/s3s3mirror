@@ -1,5 +1,6 @@
 package org.cobbzilla.s3s3util;
 
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -26,7 +27,7 @@ public class MirrorTest {
     public static final String SOURCE = System.getenv(SOURCE_ENV_VAR);
     public static final String DESTINATION = System.getenv(DEST_ENV_VAR);
 
-    private List<S3Asset> stuffToCleanup = new ArrayList<S3Asset>();
+    private final List<S3Asset> stuffToCleanup = new ArrayList<>();
 
     // Every individual test *must* initialize the "main" instance variable, otherwise NPE gets thrown here.
     private S3ToS3Main main = null;
@@ -51,7 +52,7 @@ public class MirrorTest {
     public void cleanupS3Assets () {
         // Every individual test *must* initialize the "main" instance variable, otherwise NPE gets thrown here.
         if (checkEnvs()) {
-            AmazonS3Client client = main.getClient();
+            AmazonS3 client = main.getClient();
             for (S3Asset asset : stuffToCleanup) {
                 try {
                     log.info("cleanupS3Assets: deleting "+asset);

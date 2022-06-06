@@ -2,9 +2,9 @@ package org.cobbzilla.s3s3util;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.Protocol;
+import com.amazonaws.auth.*;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.auth.InstanceProfileCredentialsProvider;
-import com.amazonaws.auth.BasicSessionCredentials;
 import lombok.Cleanup;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,13 +27,9 @@ public class S3ToS3Main {
 
     private final CmdLineParser parser = new CmdLineParser(options);
 
-    private final Thread.UncaughtExceptionHandler uncaughtExceptionHandler = new Thread.UncaughtExceptionHandler() {
-        @Override public void uncaughtException(Thread t, Throwable e) {
-            log.error("Uncaught Exception (thread "+t.getName()+"): "+e, e);
-        }
-    };
+    private final Thread.UncaughtExceptionHandler uncaughtExceptionHandler = (t, e) -> log.error("Uncaught Exception (thread "+t.getName()+"): "+e, e);
 
-    @Getter private AmazonS3Client client;
+    @Getter private AmazonS3 client;
     @Getter private S3ToS3Context context;
     @Getter private S3ToS3Master master;
 
@@ -68,7 +64,7 @@ public class S3ToS3Main {
         }
     }
 
-    protected AmazonS3Client getAmazonS3Client() {
+    protected AmazonS3 getAmazonS3Client() {
         ClientConfiguration clientConfiguration = new ClientConfiguration().withProtocol((options.isSsl() ? Protocol.HTTPS : Protocol.HTTP))
                 .withMaxConnections(options.getMaxConnections());
         if (options.getHasProxy()) {
@@ -76,14 +72,11 @@ public class S3ToS3Main {
                     .withProxyHost(options.getProxyHost())
                     .withProxyPort(options.getProxyPort());
         }
-        AmazonS3Client client = null;
-        if(System.getenv("AWS_SECURITY_TOKEN") != null) {
-            BasicSessionCredentials basicSessionCredentials = new BasicSessionCredentials(System.getenv("AWS_ACCESS_KEY_ID"), System.getenv("AWS_SECRET_ACCESS_KEY"), System.getenv("AWS_SECURITY_TOKEN"));
-            client = new AmazonS3Client(basicSessionCredentials, clientConfiguration);
-        } else if (options.hasAwsKeys()) {
-            client = new AmazonS3Client(options, clientConfiguration);
+        AmazonS3 client;
+        if (options.hasAwsKeys()) {
+            client=AmazonS3Client.builder().withCredentials(new EnvironmentVariableCredentialsProvider()).withClientConfiguration(clientConfiguration).build();
         } else if (options.isUseIamRole()) {
-            client = new AmazonS3Client(new InstanceProfileCredentialsProvider(), clientConfiguration);
+            client = AmazonS3Client.builder().withCredentials(new InstanceProfileCredentialsProvider(true)).withClientConfiguration(clientConfiguration).build();
         } else {
             throw new IllegalStateException("No authenication method available, please specify IAM Role usage or AWS key and secret");
         }        
@@ -98,7 +91,7 @@ public class S3ToS3Main {
         // try the .aws/config file first if there is a profile specified, otherwise defer to
         // .s3cfg before using the default .aws/config credentials 
         // (this may attempt .aws/config twice for no reason, but maintains backward compatibility)
-        if (options.isUseIamRole() == false) {
+        if (!options.isUseIamRole()) {
             if (!options.hasAwsKeys() && options.getProfile() != null) loadAwsKeysFromAwsConfig();
             if (!options.hasAwsKeys()) loadAwsKeysFromS3Config();
             if (!options.hasAwsKeys()) loadAwsKeysFromAwsConfig();
@@ -107,7 +100,7 @@ public class S3ToS3Main {
                 throw new IllegalStateException("Could not find credentials, IAM Role usage not specified and ENV vars not defined: " + S3ToS3Options.AWS_ACCESS_KEY + " and/or " + S3ToS3Options.AWS_SECRET_KEY);
             }
         } else {
-            InstanceProfileCredentialsProvider client = new InstanceProfileCredentialsProvider();
+            InstanceProfileCredentialsProvider client = new InstanceProfileCredentialsProvider(true);
             if (client.getCredentials() == null) {
                 throw new IllegalStateException("Could not find IAM Instance Profile credentials from the AWS metadata service.");
             }
@@ -147,12 +140,8 @@ public class S3ToS3Main {
                 line = line.trim();
                 if (line.startsWith("[")) {
                     // if no defined profile, use '[default]' otherwise use profile with matching name
-                    if ((options.getProfile() == null && line.equals("[default]"))
-                            || (options.getProfile() != null && line.equals("[profile " + options.getProfile() + "]"))) {
-                        skipSection = false;
-                    } else {
-                        skipSection = true;
-                    }
+                    skipSection = (options.getProfile() != null || !line.equals("[default]"))
+                            && (options.getProfile() == null || !line.equals("[profile " + options.getProfile() + "]"));
                     continue;
                 }
                 if (skipSection) continue;
@@ -178,12 +167,8 @@ public class S3ToS3Main {
                 line = line.trim();
                 if (line.startsWith("[")) {
                     // if no defined profile, use '[default]' otherwise use profile with matching name
-                    if ((options.getProfile() == null && line.equals("[default]"))
-                            || (options.getProfile() != null && line.equals("[" + options.getProfile() + "]"))) {
-                        skipSection = false;
-                    } else {
-                        skipSection = true;
-                    }
+                    skipSection = (options.getProfile() != null || !line.equals("[default]"))
+                            && (options.getProfile() == null || !line.equals("[" + options.getProfile() + "]"));
                     continue;
                 }
                 if (skipSection) continue;

@@ -1,5 +1,6 @@
 package org.cobbzilla.s3s3util;
 
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
@@ -9,12 +10,12 @@ import org.slf4j.Logger;
 
 public abstract class KeyJob implements Runnable {
 
-    protected final AmazonS3Client client;
+    protected final AmazonS3 client;
     protected final S3ToS3Context context;
     protected final S3ObjectSummary summary;
     protected final Object notifyLock;
 
-    public KeyJob(AmazonS3Client client, S3ToS3Context context, S3ObjectSummary summary, Object notifyLock) {
+    public KeyJob(AmazonS3 client, S3ToS3Context context, S3ObjectSummary summary, Object notifyLock) {
         this.client = client;
         this.context = context;
         this.summary = summary;
@@ -47,6 +48,7 @@ public abstract class KeyJob implements Runnable {
                 }
             }
         }
+        assert ex != null;
         throw ex;
     }
 
@@ -80,6 +82,7 @@ public abstract class KeyJob implements Runnable {
                 }
             }
         }
+        assert ex != null;
         throw ex;
     }
 

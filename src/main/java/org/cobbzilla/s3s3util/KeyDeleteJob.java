@@ -1,6 +1,6 @@
 package org.cobbzilla.s3s3util;
 
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -12,7 +12,7 @@ public class KeyDeleteJob extends BaseKeyJob {
 
     private String keysrc;
 
-    public KeyDeleteJob (AmazonS3Client client, S3ToS3Context context, S3ObjectSummary summary, Object notifyLock) {
+    public KeyDeleteJob (AmazonS3 client, S3ToS3Context context, S3ObjectSummary summary, Object notifyLock) {
         super(client, context, summary, notifyLock);
 
         final S3ToS3Options options = context.getOptions();
@@ -34,7 +34,7 @@ public class KeyDeleteJob extends BaseKeyJob {
         final int maxRetries = options.getMaxRetries();
         final String key = summary.getKey();
         try {
-            if (!shouldAction()) return false;
+            if (validate()) return false;
 
             final DeleteObjectRequest request = new DeleteObjectRequest(((options.isDelete()) ? options.getSourceBucket() : options.getDestinationBucket()), key);
 
@@ -84,7 +84,7 @@ public class KeyDeleteJob extends BaseKeyJob {
     }
 
     @Override
-    protected boolean shouldAction() {
+    protected boolean validate() {
 
         final S3ToS3Options options = context.getOptions();
         final boolean verbose = options.isVerbose();
@@ -99,30 +99,30 @@ public class KeyDeleteJob extends BaseKeyJob {
                 if (options.isYounger() && lastModified.getTime() < options.getAge()) {
                     if (verbose)
                         log.info("key " + keysrc + " (lastmod=" + lastModified + ") is older than " + options.getCtime() + " (cutoff=" + options.getAgeDate() + "), not copying");
-                    return false;
+                    return true;
                 } else if (!options.isYounger() && lastModified.getTime() > options.getAge()) {
                     if (verbose)
                         log.info("key " + keysrc + " (lastmod=" + lastModified + ") is younger than " + options.getCtime() + " (cutoff=" + options.getAgeDate() + "), not copying");
-                    return false;
+                    return true;
                 }
             }
         }
 
         try {
             ObjectMetadata metadata = getObjectMetadata(options.getSourceBucket(), keysrc, options);
-            return context.getOptions().isDelete(); // object exists in source bucket, don't delete it from destination bucket
+            return !context.getOptions().isDelete(); // object exists in source bucket, don't delete it from destination bucket
 
         } catch (AmazonS3Exception e) {
             if (e.getStatusCode() == 404) {
                 if (verbose) log.info("Key not found in source bucket (will delete from destination): "+ keysrc);
-                return true;
+                return false;
             } else {
                 log.warn("Error getting metadata for " + options.getSourceBucket() + "/" + keysrc + " (not deleting): " + e);
-                return false;
+                return true;
             }
         } catch (Exception e) {
             log.warn("Error getting metadata for " + options.getSourceBucket() + "/" + keysrc + " (not deleting): " + e);
-            return false;
+            return true;
         }
     }
 

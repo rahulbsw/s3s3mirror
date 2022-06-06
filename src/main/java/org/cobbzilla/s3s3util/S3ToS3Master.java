@@ -1,5 +1,6 @@
 package org.cobbzilla.s3s3util;
 
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,10 +14,10 @@ public class S3ToS3Master {
 
     public static final String VERSION = System.getProperty("s3tos3util.version");
 
-    private final AmazonS3Client client;
+    private final AmazonS3 client;
     private final S3ToS3Context context;
 
-    public S3ToS3Master(AmazonS3Client client, S3ToS3Context context) {
+    public S3ToS3Master(AmazonS3 client, S3ToS3Context context) {
         this.client = client;
         this.context = context;
     }
@@ -31,13 +32,8 @@ public class S3ToS3Master {
             log.info("will not copy anything "+((options.isYounger())?"older":"younger") + "than "+options.getCtime()+" (cutoff="+options.getAgeDate()+")");
 
         final int maxQueueCapacity = getMaxQueueCapacity(options);
-        final BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<Runnable>(maxQueueCapacity);
-        final RejectedExecutionHandler rejectedExecutionHandler = new RejectedExecutionHandler() {
-            @Override
-            public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-                log.error("Error submitting job: "+r+", possible queue overflow");
-            }
-        };
+        final BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<>(maxQueueCapacity);
+        final RejectedExecutionHandler rejectedExecutionHandler = (r, executor) -> log.error("Error submitting job: "+r+", possible queue overflow");
 
         final ThreadPoolExecutor executorService = new ThreadPoolExecutor(options.getMaxThreads(), options.getMaxThreads(), 1, TimeUnit.MINUTES, workQueue, rejectedExecutionHandler);
 

@@ -1,5 +1,6 @@
 package org.cobbzilla.s3s3util;
 
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
@@ -8,7 +9,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 public class CopyMaster extends KeyMaster {
 
-    public CopyMaster(AmazonS3Client client, S3ToS3Context context, BlockingQueue<Runnable> workQueue, ThreadPoolExecutor executorService) {
+    public CopyMaster(AmazonS3 client, S3ToS3Context context, BlockingQueue<Runnable> workQueue, ThreadPoolExecutor executorService) {
         super(client, context, workQueue, executorService);
     }
 
